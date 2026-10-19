@@ -1,0 +1,186 @@
+// Search + pagination for the professions table. No dependencies.
+(function () {
+  'use strict';
+
+  var PAGE_SIZES = [25, 50, 100, 250];
+
+  var searchEl = document.getElementById('search');
+  var sizeEl = document.getElementById('page-size');
+  var statusEl = document.getElementById('status');
+  var tbody = document.getElementById('rows');
+  var pagEl = document.getElementById('pagination');
+
+  var query = '';
+  var page = 1;
+  var pageSize = 25;
+  var filtered = PROFESSIONS;
+
+  // Restore state from the URL so filtered pages are linkable.
+  var params = new URLSearchParams(location.search);
+  if (params.get('q')) query = params.get('q');
+  if (PAGE_SIZES.indexOf(parseInt(params.get('size'), 10)) !== -1) {
+    pageSize = parseInt(params.get('size'), 10);
+  }
+  var urlPage = parseInt(params.get('page'), 10);
+  if (urlPage > 0) page = urlPage;
+
+  searchEl.value = query;
+  sizeEl.value = String(pageSize);
+
+  function applyFilter() {
+    var q = query.trim().toLowerCase();
+    if (!q) {
+      filtered = PROFESSIONS;
+      return;
+    }
+    filtered = PROFESSIONS.filter(function (p) {
+      return p.title.toLowerCase().indexOf(q) !== -1 ||
+             p.code.toLowerCase().indexOf(q) !== -1 ||
+             p.group.toLowerCase().indexOf(q) !== -1;
+    });
+  }
+
+  function makeCell(text, className) {
+    var td = document.createElement('td');
+    td.textContent = text;
+    if (className) td.className = className;
+    return td;
+  }
+
+  function renderRows(slice) {
+    var frag = document.createDocumentFragment();
+    if (!slice.length) {
+      var empty = document.createElement('tr');
+      var td = document.createElement('td');
+      td.colSpan = 4;
+      td.className = 'empty';
+      td.textContent = 'No professions match \u201C' + query.trim() + '\u201D';
+      empty.appendChild(td);
+      frag.appendChild(empty);
+    }
+    slice.forEach(function (p) {
+      var tr = document.createElement('tr');
+      tr.appendChild(makeCell(p.title, 'title'));
+      tr.appendChild(makeCell(p.code, 'code'));
+      tr.appendChild(makeCell(p.group, 'group'));
+      var zone = p.jobZone && p.jobZone !== 'n/a' ? p.jobZone : 'n/a';
+      tr.appendChild(makeCell(zone, zone === 'n/a' ? 'num na' : 'num'));
+      frag.appendChild(tr);
+    });
+    tbody.replaceChildren(frag);
+  }
+
+  function renderStatus(shown) {
+    var total = filtered.length;
+    if (total === 0) {
+      statusEl.textContent = 'No matches out of ' + PROFESSIONS.length + ' professions.';
+      return;
+    }
+    var from = (page - 1) * pageSize + 1;
+    var to = from + shown - 1;
+    var text = 'Showing ' + from + '\u2013' + to + ' of ' + total + ' professions';
+    if (total !== PROFESSIONS.length) {
+      text += ' (filtered from ' + PROFESSIONS.length + ')';
+    }
+    statusEl.textContent = text;
+  }
+
+  function pageButton(label, targetPage, opts) {
+    opts = opts || {};
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = label;
+    if (opts.ariaLabel) b.setAttribute('aria-label', opts.ariaLabel);
+    if (opts.current) {
+      b.className = 'current';
+      b.setAttribute('aria-current', 'page');
+    } else {
+      b.addEventListener('click', function () {
+        page = targetPage;
+        render(true);
+      });
+    }
+    if (opts.disabled) b.disabled = true;
+    return b;
+  }
+
+  function renderPagination(pages) {
+    pagEl.replaceChildren();
+    if (pages <= 1 && filtered.length === 0) return;
+
+    pagEl.appendChild(pageButton('\u00AB Prev', page - 1, {
+      disabled: page <= 1,
+      ariaLabel: 'Previous page'
+    }));
+
+    // Compact window: 1 … p-1 p p+1 … last
+    var wanted = [1, pages, page - 1, page, page + 1]
+      .filter(function (n) { return n >= 1 && n <= pages; })
+      .filter(function (n, i, a) { return a.indexOf(n) === i; })
+      .sort(function (a, b) { return a - b; });
+
+    var last = 0;
+    wanted.forEach(function (n) {
+      if (n - last > 1) {
+        var gap = document.createElement('span');
+        gap.className = 'gap';
+        gap.textContent = '\u2026';
+        pagEl.appendChild(gap);
+      }
+      pagEl.appendChild(pageButton(String(n), n, { current: n === page }));
+      last = n;
+    });
+
+    pagEl.appendChild(pageButton('Next \u00BB', page + 1, {
+      disabled: page >= pages,
+      ariaLabel: 'Next page'
+    }));
+  }
+
+  function syncUrl() {
+    var p = new URLSearchParams();
+    if (query.trim()) p.set('q', query.trim());
+    if (page !== 1) p.set('page', String(page));
+    if (pageSize !== 25) p.set('size', String(pageSize));
+    var qs = p.toString();
+    // history API can throw on file:// (origin null) — state sync is optional.
+    try {
+      history.replaceState(null, '', qs ? '?' + qs : location.pathname);
+    } catch (e) { /* ignore: opened via file:// */ }
+  }
+
+  function render(scroll) {
+    var pages = Math.max(1, Math.ceil(filtered.length / pageSize));
+    if (page > pages) page = pages;
+    if (page < 1) page = 1;
+
+    var start = (page - 1) * pageSize;
+    var slice = filtered.slice(start, start + pageSize);
+
+    renderRows(slice);
+    renderStatus(slice.length);
+    renderPagination(pages);
+    syncUrl();
+
+    if (scroll) {
+      document.querySelector('.toolbar')
+        .scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+
+  searchEl.addEventListener('input', function () {
+    query = searchEl.value;
+    page = 1;
+    applyFilter();
+    render(false);
+  });
+
+  sizeEl.addEventListener('change', function () {
+    pageSize = parseInt(sizeEl.value, 10);
+    page = 1;
+    render(false);
+  });
+
+  applyFilter();
+  render(false);
+})();
