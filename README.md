@@ -10,9 +10,9 @@ the same search and pagination as the index, driven client-side by `group.js`.
 
 | Path                          | What it is                                              |
 |-------------------------------|---------------------------------------------------------|
-| `static/`                     | Site source (`index.html`, `style.css`, `app.js`, `group.js`, `professions.js`) |
-| `arguments/`                  | One markdown page per profession and per major group (1,039 files, generated) |
-| `templates/argument.html`     | Pandoc template used to render `arguments/*.md`         |
+| `src/static/`                 | Site source (`index.html`, `style.css`, `app.js`, `group.js`, `professions.js`) |
+| `src/arguments/`              | One markdown page per profession and per major group (1,039 files, generated) |
+| `src/templates/argument.html`  | Pandoc template used to render `src/arguments/*.md`    |
 | `src/generate-pages.py`       | Regenerates `arguments/*.md` from the CSV               |
 | `documentation/us-occupations-onet-soc.csv` | Same occupation list as CSV (source of truth)       |
 | `documentation/government-occupational-registries.md` | Overview of government profession registers worldwide |
@@ -27,11 +27,11 @@ python3 -m http.server 8899 --directory docs
 # open http://localhost:8899
 ```
 
-The data file `static/professions.js` is generated from the CSV; regenerate it
+The data file `src/static/professions.js` is generated from the CSV; regenerate it
 after updating the CSV. Detail pages work the same way:
 
 ```sh
-python3 src/generate-pages.py   # rewrite arguments/*.md from the CSV
+python3 src/generate-pages.py   # rewrite src/arguments/*.md from the CSV
 make build                      # recompile everything into docs/
 ```
 

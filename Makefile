@@ -7,9 +7,9 @@ help: ## Show this help
 build: ## Render the arguments to docs with pandoc
 	@rm -rf docs
 	@mkdir -p docs/arguments
-	@-cp -r static/* docs/ 2> /dev/null || true
-	@for f in arguments/*.md; do \
+	@-cp -r src/static/* docs/ 2> /dev/null || true
+	@for f in src/arguments/*.md; do \
 		[ -e "$$f" ] || continue; \
-		pandoc "$$f" -o "docs/arguments/$$(basename "$${f%.md}.html")" --template=templates/argument.html || exit 1; \
+		pandoc "$$f" -o "docs/arguments/$$(basename "$${f%.md}.html")" --template=src/templates/argument.html || exit 1; \
 	done
-	@-cp -r arguments/*.html docs/arguments/ 2> /dev/null || true
+	@-cp -r src/arguments/*.html docs/arguments/ 2> /dev/null || true

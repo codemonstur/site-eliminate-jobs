@@ -7,7 +7,7 @@ Writes : arguments/<onet-soc-code>.md       (one per profession)
          arguments/<major-group-code>-pN.md (major group, pages 2+)
 
 `make build` compiles these with pandoc (template: templates/argument.html)
-into wwwroot/arguments/, which is where the table links in static/app.js point.
+into docs/arguments/, which is where the table links in src/static/app.js point.
 Group pages embed a #group mount point that static/group.js fills client-side
 with search + pagination identical to the index page (data: professions.js).
 """
@@ -18,7 +18,7 @@ from collections import OrderedDict
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 CSV_PATH = ROOT / "documentation" / "us-occupations-onet-soc.csv"
-OUT_DIR = ROOT / "arguments"
+OUT_DIR = ROOT / "src" / "arguments"
 
 JOB_ZONE_NOTES = {
     "1-2": "little or moderate preparation",
