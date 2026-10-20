@@ -225,3 +225,12 @@ tbody td.group a:hover { color: #4e79a7; text-decoration: underline; }
 }
 .keynes-quote footer a { color: #4e79a7; }
 .keynes-quote cite { font-style: italic; }
+
+/* Introduction */
+.intro {
+  margin: 0 0 1.75rem;
+  max-width: 60rem;
+  line-height: 1.6;
+  color: #343a40;
+}
+.intro p { margin: 0; }
