@@ -28,6 +28,167 @@ JOB_ZONE_NOTES = {
     "n/a": "no job zone assigned",
 }
 
+# Potential ways and technologies in development that could reduce or eliminate
+# the jobs in each major group. Informational, not a prediction.
+TECHNOLOGIES = {
+ "11": [
+  "AI agents for planning, scheduling, and resource allocation",
+  "Automated performance analytics and workforce dashboards",
+  "LLM-based decision support and executive briefing",
+  "Robotic process automation for approvals and compliance",
+  "Autonomous project-management and OKR tracking tools",
+ ],
+ "13": [
+  "AI accounting, audit, and reconciliation automation",
+  "Algorithmic trading and robo-advisory",
+  "Automated financial reporting and forecasting",
+  "LLM tax preparation and compliance review",
+  "RPA for invoice and expense processing",
+ ],
+ "15": [
+  "AI code generation and agentic software engineering",
+  "Automated testing and bug triage",
+  "AutoML and automated model deployment",
+  "LLM-assisted data analysis and querying",
+  "AI-driven DevOps and incident response",
+ ],
+ "17": [
+  "Generative design and AI-assisted engineering",
+  "Building information modeling (BIM) automation",
+  "Autonomous surveying with drones and LiDAR",
+  "AI structural optimization and simulation",
+  "Robotic construction planning and scheduling",
+ ],
+ "19": [
+  "AI literature review and hypothesis generation",
+  "Robotic laboratories and automated experiments",
+  "Computational modeling and simulation",
+  "AI-driven data collection and remote sensing",
+  "Automated statistical analysis and reporting",
+ ],
+ "21": [
+  "AI triage chatbots for counseling and intake",
+  "Automated case management and eligibility checks",
+  "Telehealth triage and remote support",
+  "AI-assisted benefit and service navigation",
+ ],
+ "23": [
+  "LLM contract review and legal research",
+  "Automated discovery and document analysis",
+  "AI drafting of briefs, wills, and filings",
+  "Compliance automation and regulatory monitoring",
+  "Online dispute resolution platforms",
+ ],
+ "25": [
+  "AI tutors and adaptive learning platforms",
+  "Automated grading and feedback",
+  "LLM lesson planning and content generation",
+  "Virtual classrooms and AI teaching assistants",
+  "Personalized curriculum optimization",
+ ],
+ "27": [
+  "Generative AI for image, video, and music",
+  "AI editing, dubbing, and post-production",
+  "Automated content and copy generation",
+  "Virtual influencers and synthetic media",
+  "AI game and level design",
+ ],
+ "29": [
+  "AI diagnosis and clinical decision support",
+  "Surgical and diagnostic robotics",
+  "AI radiology and pathology screening",
+  "Ambient AI scribes for medical documentation",
+  "AI drug discovery and trial optimization",
+ ],
+ "31": [
+  "Care and service robots",
+  "Automated patient monitoring and alerts",
+  "Robotic medication dispensing",
+  "AI scheduling and task routing",
+  "Remote patient monitoring platforms",
+ ],
+ "33": [
+  "AI video analytics and surveillance",
+  "Autonomous security robots and drones",
+  "Predictive policing and risk scoring",
+  "Automated access control and screening",
+ ],
+ "35": [
+  "Kitchen and food-preparation robots",
+  "Self-service kiosks and automated ordering",
+  "Delivery robots and drones",
+  "AI inventory and demand forecasting",
+  "Robotic baristas and beverage systems",
+ ],
+ "37": [
+  "Autonomous cleaning and floor-care robots",
+  "Robotic lawn mowers and grounds equipment",
+  "Automated window and facade cleaning",
+  "AI scheduling and route optimization",
+ ],
+ "39": [
+  "Care and companion robots",
+  "AI personal assistants and concierges",
+  "Automated salon and grooming devices",
+  "Wearable health and wellness monitoring",
+ ],
+ "41": [
+  "AI sales agents and chatbots",
+  "Automated pricing and promotion optimization",
+  "Recommendation and personalization engines",
+  "Virtual shopping assistants",
+  "AI lead scoring and CRM automation",
+ ],
+ "43": [
+  "Robotic process automation (RPA)",
+  "LLM document processing and data entry",
+  "AI email drafting and triage",
+  "Automated scheduling and calendar management",
+  "Voice assistants and transcription",
+ ],
+ "45": [
+  "Precision agriculture and AI crop management",
+  "Autonomous tractors and harvesters",
+  "Harvesting and picking robots",
+  "Drone monitoring and spraying",
+  "Automated aquaculture and fishery systems",
+ ],
+ "47": [
+  "Autonomous construction equipment",
+  "Robotic bricklaying and 3D-printed buildings",
+  "AI site planning and scheduling",
+  "Automated surveying and inspection drones",
+  "Robotic excavation and tunneling",
+ ],
+ "49": [
+  "Predictive maintenance and AI diagnostics",
+  "AR-guided repair and remote assistance",
+  "Autonomous inspection drones",
+  "Self-diagnosing and self-repairing systems",
+  "Robotic maintenance platforms",
+ ],
+ "51": [
+  "Industrial and collaborative robots",
+  "AI visual quality control",
+  "Automated assembly and packaging",
+  "Additive manufacturing (3D printing)",
+  "Autonomous warehouse and logistics systems",
+ ],
+ "53": [
+  "Autonomous vehicles and self-driving trucks",
+  "Delivery drones and sidewalk robots",
+  "Automated ports, cranes, and warehouses",
+  "AI routing and fleet optimization",
+  "Autonomous forklifts and material handlers",
+ ],
+ "55": [
+  "Autonomous systems and drone swarms",
+  "AI command-and-control and decision support",
+  "Robotic logistics and resupply",
+  "Unmanned vehicles and platforms",
+ ],
+}
+
 # Characters that would break markdown (table cells, links, emphasis).
 UNSAFE = set("|[]`*_<>")
 
@@ -147,6 +308,10 @@ group_code: {yaml_str(gcode)}
 
 Major group `{gcode}` of the U.S. O\\*NET-SOC register, containing
 **{len(group['members'])}** of the {total_str} professions listed on this site.
+
+## Ways these jobs could be eliminated
+
+{chr(10).join("- " + t for t in TECHNOLOGIES.get(gcode, []))}
 
 ```{{=html}}
 {group_section(gcode)}
