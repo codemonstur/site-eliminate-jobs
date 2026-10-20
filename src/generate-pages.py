@@ -251,6 +251,8 @@ def main() -> None:
             code, {"code": code, "name": name, "full": row["major_group"], "members": []}
         )
         group["members"].append(row)
+    # sort groups alphabetically by their name (without the leading code)
+    groups = OrderedDict(sorted(groups.items(), key=lambda kv: kv[1]["full"].split(" ", 1)[-1]))
 
     # Sort each group's members alphabetically for the client-side renderer.
     for group in groups.values():

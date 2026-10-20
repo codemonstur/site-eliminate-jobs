@@ -13,6 +13,11 @@
   var query = '';
   var page = 1;
   var pageSize = 10;
+  GROUPS.sort(function (a, b) {
+    var an = a.name.replace(/^\d+\s+/, '');
+    var bn = b.name.replace(/^\d+\s+/, '');
+    return an.localeCompare(bn);
+  });
   var filtered = GROUPS;
 
   var params = new URLSearchParams(location.search);
