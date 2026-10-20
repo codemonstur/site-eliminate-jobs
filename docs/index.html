@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>All Professions — U.S. O*NET-SOC Occupations</title>
+  <meta name="description" content="Searchable, paginated list of all 1,016 professions tracked by the U.S. Department of Labor O*NET-SOC database.">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main>
+    <h1>All Professions</h1>
+    <p class="subtitle">
+      Every occupation tracked by the U.S. Department of Labor&rsquo;s
+      <a href="https://www.onetonline.org/" target="_blank" rel="noopener">O*NET-SOC</a>
+      database &mdash; 1,016 professions, searchable and paginated.
+    </p>
+
+    <div class="toolbar">
+      <input id="search" type="search" placeholder="Search professions &hellip; e.g. &ldquo;developer&rdquo;, &ldquo;15-1252&rdquo; or &ldquo;Healthcare&rdquo;"
+             autocomplete="off" spellcheck="false" autofocus aria-label="Search professions">
+      <label class="page-size-label">Per page
+        <select id="page-size" aria-label="Professions per page">
+          <option value="10" selected>10</option>
+          <option value="25">25</option>
+          <option value="50">50</option>
+          <option value="100">100</option>
+          <option value="250">250</option>
+        </select>
+      </label>
+    </div>
+
+    <p id="status" class="status" role="status" aria-live="polite"></p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Profession</th>
+            <th>O*NET-SOC code</th>
+            <th>Major group</th>
+            <th class="num">Job zone</th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+
+    <nav class="pagination" id="pagination" aria-label="Pagination"></nav>
+
+    <footer>
+      <p>
+        Source: <a href="https://www.onetonline.org/find/all" target="_blank" rel="noopener">O*NET OnLine</a>,
+        sponsored by the U.S. Department of Labor, Employment and Training Administration.
+        Job zones group professions by the education, experience, and training typically needed.
+      </p>
+    </footer>
+  </main>
+
+  <script src="professions.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

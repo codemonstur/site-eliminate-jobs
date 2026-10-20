@@ -14,16 +14,16 @@ the same search and pagination as the index, driven client-side by `group.js`.
 | `arguments/`                  | One markdown page per profession and per major group (1,039 files, generated) |
 | `templates/argument.html`     | Pandoc template used to render `arguments/*.md`         |
 | `src/generate-pages.py`       | Regenerates `arguments/*.md` from the CSV               |
-| `docs/us-occupations-onet-soc.csv` | Same occupation list as CSV (source of truth)       |
-| `docs/government-occupational-registries.md` | Overview of government profession registers worldwide |
-| `wwwroot/`                    | Build output — the deployable site                      |
-| `.github/workflows/pages.yml` | Deploys `wwwroot/` to GitHub Pages                      |
+| `documentation/us-occupations-onet-soc.csv` | Same occupation list as CSV (source of truth)       |
+| `documentation/government-occupational-registries.md` | Overview of government profession registers worldwide |
+| `docs/`                       | Build output — the deployable site (committed for Pages)                      |
+| `.github/workflows/`      | (none — Pages deploys `docs/` from the branch)         |
 
 ## Build and preview locally
 
 ```sh
 make build
-python3 -m http.server 8899 --directory wwwroot
+python3 -m http.server 8899 --directory docs
 # open http://localhost:8899
 ```
 
@@ -32,14 +32,14 @@ after updating the CSV. Detail pages work the same way:
 
 ```sh
 python3 src/generate-pages.py   # rewrite arguments/*.md from the CSV
-make build                      # recompile everything into wwwroot/
+make build                      # recompile everything into docs/
 ```
 
 ## Hosting on GitHub Pages
 
 1. Push the repository to GitHub.
 2. **Settings → Pages → Source: GitHub Actions**.
-3. Push to `main` — the workflow builds `wwwroot/` and deploys it.
+3. Push to `main` — GitHub Pages serves `docs/` from the branch
 
 The site is fully static: relative links only, no server-side code, no
 third-party CDNs.

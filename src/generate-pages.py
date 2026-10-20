@@ -17,7 +17,7 @@ import pathlib
 from collections import OrderedDict
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-CSV_PATH = ROOT / "docs" / "us-occupations-onet-soc.csv"
+CSV_PATH = ROOT / "documentation" / "us-occupations-onet-soc.csv"
 OUT_DIR = ROOT / "arguments"
 
 JOB_ZONE_NOTES = {
