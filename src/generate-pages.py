@@ -293,7 +293,7 @@ A profession in the U.S. Department of Labor's O\\*NET-SOC register — one of
 
 - [Full profile on O\\*NET OnLine](https://www.onetonline.org/link/summary/{code})
 - [All professions in {row['major_group']}]({group_link})
-- [Browse all professions](../index.html)
+- [Browse all professions](../professions.html)
 """
         (OUT_DIR / f"{code}.md").write_text(page, encoding="utf-8")
 
@@ -319,7 +319,7 @@ Major group `{gcode}` of the U.S. O\\*NET-SOC register, containing
 
 ## See also
 
-- [Browse all professions](../index.html)
+- [Browse all professions](../professions.html)
 - [Major group on O\\*NET OnLine](https://www.onetonline.org/find/major?b={gcode})
 """
         (OUT_DIR / f"{gcode}.md").write_text(page, encoding="utf-8")
