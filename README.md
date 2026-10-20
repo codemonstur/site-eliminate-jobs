@@ -14,8 +14,8 @@ the same search and pagination as the index, driven client-side by `group.js`.
 | `src/arguments/`              | One markdown page per profession and per major group (1,039 files, generated) |
 | `src/templates/argument.html`  | Pandoc template used to render `src/arguments/*.md`    |
 | `src/generate-pages.py`       | Regenerates `arguments/*.md` from the CSV               |
-| `documentation/us-occupations-onet-soc.csv` | Same occupation list as CSV (source of truth)       |
-| `documentation/government-occupational-registries.md` | Overview of government profession registers worldwide |
+| `src/docs/us-occupations-onet-soc.csv` | Same occupation list as CSV (source of truth)       |
+| `src/docs/government-occupational-registries.md` | Overview of government profession registers worldwide |
 | `docs/`                       | Build output — the deployable site (committed for Pages)                      |
 | `.github/workflows/`      | (none — Pages deploys `docs/` from the branch)         |
 
