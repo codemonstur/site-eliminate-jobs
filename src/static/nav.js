@@ -4,7 +4,7 @@
 (function () {
   'use strict';
 
-  var SHELL_PAGES = { 'index.html': 1, 'professions.html': 1, 'groups.html': 1 };
+  var SHELL_PAGES = { 'index.html': 1, 'professions.html': 1, 'groups.html': 1, 'consequences.html': 1 };
   var SCRIPTS = {
     'professions.html': ['professions.js', 'app.js'],
     'groups.html': ['groups.js', 'groups-app.js']
