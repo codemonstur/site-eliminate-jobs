@@ -65,7 +65,7 @@
     }
     slice.forEach(function (g) {
       var tr = document.createElement('tr');
-      tr.appendChild(makeLinkCell('arguments/' + g.code + '.html', g.name, 'title'));
+      tr.appendChild(makeLinkCell('arguments/' + g.code + '.html', g.name.replace(/^\d+\s+/, ''), 'title'));
       tr.appendChild(makeCell(g.code, 'code'));
       tr.appendChild(makeCell(String(g.count), 'num'));
       frag.appendChild(tr);

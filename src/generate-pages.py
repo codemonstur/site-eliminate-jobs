@@ -299,10 +299,11 @@ A profession in the U.S. Department of Labor's O\\*NET-SOC register — one of
 
     for gcode, group in groups.items():
         full = group["full"]
-        check_safe(full, f"major group name ({gcode})")
+        display_name = full.split(" ", 1)[-1] if " " in full else full
+        check_safe(display_name, f"major group name ({gcode})")
 
         page = f"""---
-title: {yaml_str(full)}
+title: {yaml_str(display_name)}
 group_code: {yaml_str(gcode)}
 ---
 

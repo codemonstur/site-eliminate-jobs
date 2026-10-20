@@ -72,7 +72,7 @@
       var tr = document.createElement('tr');
       tr.appendChild(makeLinkCell('arguments/' + p.code + '.html', p.title, 'title'));
       tr.appendChild(makeCell(p.code, 'code'));
-      tr.appendChild(makeLinkCell('arguments/' + p.group.split(' ')[0] + '.html', p.group, 'group'));
+      tr.appendChild(makeLinkCell('arguments/' + p.group.split(' ')[0] + '.html', p.group.replace(/^\d+\s+/, ''), 'group'));
       var zone = p.jobZone && p.jobZone !== 'n/a' ? p.jobZone : 'n/a';
       tr.appendChild(makeCell(zone, zone === 'n/a' ? 'num na' : 'num'));
       frag.appendChild(tr);
