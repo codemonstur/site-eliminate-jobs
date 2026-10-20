@@ -14,6 +14,7 @@ with search + pagination identical to the index page (data: professions.js).
 import csv
 import json
 import pathlib
+import re
 from collections import OrderedDict
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
@@ -191,6 +192,284 @@ TECHNOLOGIES = {
 
 
 
+# Hand-authored dictionary descriptions for each major group (>=5 sentences).
+# Major groups are categories, not occupations, so they have no O*NET summary
+# page; these are written from the nature of the occupations they contain.
+GROUP_DESCRIPTIONS = {
+    "11": (
+        "Management occupations are the people who set goals, make decisions, and "
+        "direct the activities of an organization to meet its objectives. The group "
+        "includes chief executives, general and operations managers, and specialist "
+        "managers in areas such as finance, marketing, human resources, "
+        "construction, engineering, and health services. Typical duties involve "
+        "planning and organizing work, establishing policies and procedures, "
+        "overseeing budgets and performance, and allocating staff and funding where "
+        "they are needed most. Most roles require a bachelor's degree and several "
+        "years of prior experience in the field being managed. Workers in this group "
+        "hold responsibility for the overall direction of an enterprise, department, "
+        "or unit and frequently supervise other managers and their teams."
+    ),
+    "13": (
+        "Business and financial operations occupations cover the professionals who "
+        "analyze data, manage money, ensure compliance, and support the inner "
+        "working of organizations. The group includes accountants and auditors, "
+        "financial and investment analysts, human resources specialists, management "
+        "analysts, and procurement and compliance officers. Their work involves "
+        "examining records, preparing reports and forecasts, evaluating budgets, "
+        "advising on strategy, and making sure an organization follows relevant laws "
+        "and standards. Most occupations in this group require a bachelor's degree, "
+        "and many rely on strong analytical, mathematical, and communication skills. "
+        "These professionals translate raw information into decisions that keep a "
+        "business solvent, efficient, and compliant."
+    ),
+    "15": (
+        "Computer and mathematical occupations include the people who design, build, "
+        "and maintain software and systems and who apply quantitative methods to hard "
+        "problems. The group spans software developers, data scientists, database and "
+        "network administrators, information security analysts, and mathematicians and "
+        "statisticians. Typical duties involve writing and testing code, modeling data, "
+        "designing architecture, protecting systems from threats, and turning "
+        "complex datasets into usable insight. Most roles require a bachelor's degree "
+        "in computer science, mathematics, or a related field, and some favor advanced "
+        "study. Workers in this group build and operate the digital infrastructure "
+        "that nearly every other occupation now depends on."
+    ),
+    "17": (
+        "Architecture and engineering occupations are the people who design, test, and "
+        "oversee the construction of structures, machines, systems, and processes. The "
+        "group includes architects, civil, mechanical, electrical, and chemical "
+        "engineers, as well as surveyors, drafters, and environmental engineers. Their "
+        "work involves drawing up plans, running simulations, analyzing materials and "
+        "loads, preparing specifications, and checking that designs meet safety and "
+        "performance standards. Most occupations require a bachelor's degree in "
+        "engineering or architecture, and licensure is often required to sign off on "
+        "public work. These professionals turn ideas and requirements into buildable, "
+        "safe, and efficient real-world designs."
+    ),
+    "19": (
+        "Life, physical, and social science occupations cover the people who study the "
+        "natural world, living systems, and human society through observation and "
+        "experiment. The group includes biologists, chemists, physicists, "
+        "environmental scientists, psychologists, economists, and urban and regional "
+        "planners. Typical duties involve designing studies, collecting and analyzing "
+        "samples and data, interpreting results, and reporting findings to other "
+        "scientists, policymakers, or the public. Most roles require a bachelor's "
+        "degree, and research positions often call for a master's degree or Ph.D. "
+        "Workers in this group produce the knowledge and evidence that drive "
+        "scientific progress and informed decision-making."
+    ),
+    "21": (
+        "Community and social service occupations are the people who help individuals, "
+        "families, and communities cope with challenges and improve their wellbeing. "
+        "The group includes social workers, counselors, substance abuse and mental "
+        "health specialists, marriage and family therapists, and community health "
+        "workers. Their work involves assessing needs, developing support plans, "
+        "connecting clients to services and resources, providing counseling, and "
+        "advocating on behalf of vulnerable people. Most occupations require a "
+        "bachelor's degree, and clinical roles typically require a master's degree and "
+        "supervised practice or licensure. These professionals provide the human "
+        "support and guidance that hold communities together."
+    ),
+    "23": (
+        "Legal occupations are the people who interpret, apply, and uphold the law on "
+        "behalf of individuals, organizations, and the state. The group includes "
+        "lawyers, judges, paralegals, legal assistants, mediators, and title "
+        "examiners and abstractors. Typical duties involve researching statutes and "
+        "precedents, drafting contracts and filings, advising clients, representing "
+        "parties in court or negotiation, and resolving disputes. Most professional "
+        "legal roles require a law degree and admission to the bar, while support "
+        "roles require a paralegal certificate or associate degree. Workers in this "
+        "group safeguard rights, settle disagreements, and keep the justice system "
+        "functioning."
+    ),
+    "25": (
+        "Educational instruction and library occupations are the people who teach, "
+        "train, and organize knowledge for learners of every age. The group includes "
+        "elementary, middle, and secondary teachers, professors, special education "
+        "and ESL instructors, librarians, archivists, and instructional coordinators. "
+        "Their work involves planning lessons, delivering instruction, assessing "
+        "progress, managing classrooms or collections, and guiding students toward "
+        "independent learning. Most teaching roles require a bachelor's degree and a "
+        "state-issued license, while higher education and library roles often require "
+        "a master's degree. These professionals pass on skills and knowledge and give "
+        "people access to the information they need."
+    ),
+    "27": (
+        "Arts, design, entertainment, sports, and media occupations are the people who "
+        "create, perform, and communicate visual, performing, and written work. The "
+        "group includes artists, designers, actors, musicians, athletes, writers, "
+        "editors, photographers, and journalists. Typical duties involve developing "
+        "original concepts, producing and performing work, editing and refining "
+        "content, and presenting it to an audience through stage, print, broadcast, "
+        "or digital channels. Entry requirements vary widely, from natural talent and "
+        "a portfolio to formal training, and many workers are self-employed or "
+        "freelance. Workers in this group shape culture, tell stories, and inform and "
+        "entertain the public."
+    ),
+    "29": (
+        "Healthcare practitioner and technical occupations are the licensed "
+        "professionals who diagnose, treat, and prevent illness and injury. The group "
+        "includes physicians, surgeons, registered nurses, pharmacists, dentists, "
+        "therapists, and laboratory and radiologic technologists. Their work involves "
+        "examining patients, ordering and interpreting tests, prescribing treatment, "
+        "performing procedures, and coordinating care. Most occupations require "
+        "advanced education, ranging from a nursing or pharmacy degree to medical or "
+        "dental school and residency, plus professional licensure. These professionals "
+        "deliver the direct clinical care that keeps people healthy and saves lives."
+    ),
+    "31": (
+        "Healthcare support occupations are the people who assist practitioners and "
+        "care for patients in settings such as hospitals, clinics, and nursing homes. "
+        "The group includes nursing assistants, home health and personal care aides, "
+        "medical assistants, phlebotomists, and pharmacy technicians. Typical duties "
+        "involve helping patients with daily activities, taking vital signs, "
+        "collecting samples, preparing exam rooms, and supporting the smooth running "
+        "of clinical workflow. Most roles require a certificate, postsecondary "
+        "nondegree award, or on-the-job training rather than a four-year degree. These "
+        "workers provide the hands-on care and practical support that clinical "
+        "treatment depends on."
+    ),
+    "33": (
+        "Protective service occupations are the people who protect people, property, "
+        "and information from harm, crime, and emergencies. The group includes police "
+        "officers, firefighters, security guards, correctional officers, and private "
+        "investigators. Their work involves patrolling and monitoring, responding to "
+        "incidents, enforcing rules and laws, restraining threats, and investigating "
+        "suspected wrongdoing. Most public-sector roles require academy training and "
+        "state certification, while many support roles require a high school diploma "
+        "plus on-the-job instruction. Workers in this group keep communities safe and "
+        "maintain public order."
+    ),
+    "35": (
+        "Food preparation and serving occupations are the people who cook, assemble, "
+        "and serve food and drink to customers in restaurants, cafeterias, and "
+        "catering operations. The group includes chefs and head cooks, cooks, waiters "
+        "and waitresses, bartenders, and fast-food and counter workers. Typical duties "
+        "involve taking orders, preparing and plating dishes, mixing beverages, "
+        "restocking supplies, processing payments, and keeping work areas clean. Most "
+        "entry-level roles require a high school diploma or less and learn skills on "
+        "the job, though chefs may attend culinary school. These workers feed the "
+        "public and shape the dining experience."
+    ),
+    "37": (
+        "Building and grounds cleaning and maintenance occupations are the people who "
+        "keep structures, interiors, and landscapes clean, safe, and usable. The group "
+        "includes janitors and building cleaners, housekeepers, groundskeeping "
+        "workers, landscapers, and pest control workers. Their work involves sweeping, "
+        "mopping, and disinfecting surfaces, emptying waste, mowing and trimming, "
+        "applying treatments, and reporting needed repairs. Most roles require only a "
+        "high school diploma or less and provide substantial on-the-job training. These "
+        "workers maintain the physical environments where people live, work, and "
+        "gather."
+    ),
+    "39": (
+        "Personal care and service occupations are the people who provide grooming, "
+        "wellness, hospitality, and other services directly to individuals. The group "
+        "includes hairdressers, barbers, cosmetologists, fitness trainers, childcare "
+        "workers, baggage porters, and concierges. Typical duties involve consulting "
+        "with clients, performing treatments or services, scheduling appointments, "
+        "ensuring comfort, and maintaining clean and welcoming spaces. Most roles "
+        "require a license, certificate, or moderate training, and many rely heavily "
+        "on interpersonal skill. These workers help people look, feel, and live "
+        "better in their day-to-day lives."
+    ),
+    "41": (
+        "Sales and related occupations are the people who sell goods, services, and "
+        "ideas to customers on behalf of businesses and organizations. The group "
+        "includes retail salespersons, cashiers, real estate brokers and agents, "
+        "insurance and securities sales representatives, and telemarketers. Their work "
+        "involves identifying customer needs, demonstrating products, negotiating "
+        "terms, processing transactions, and following up to build lasting accounts. "
+        "Most entry-level roles require a high school diploma and learn through "
+        "on-the-job training, though specialized sales often require licensing or a "
+        "degree. These workers connect what an organization offers to the people who "
+        "buy it."
+    ),
+    "43": (
+        "Office and administrative support occupations are the people who keep "
+        "offices running by handling records, correspondence, scheduling, and "
+        "customer service. The group includes receptionists, administrative assistants, "
+        "bookkeeping and accounting clerks, customer service representatives, and "
+        "data entry keyers. Typical duties involve answering calls, filing and "
+        "maintaining records, drafting documents, processing forms, and assisting "
+        "clients with questions and requests. Most roles require a high school diploma "
+        "plus office and computer skills, often gained on the job. These workers "
+        "provide the organizational backbone that lets every other part of a business "
+        "function."
+    ),
+    "45": (
+        "Farming, fishing, and forestry occupations are the people who grow crops, "
+        "raise livestock, catch seafood, and manage forests and natural resources. The "
+        "group includes farmers, ranchers, agricultural workers, fishing vessel "
+        "crews, and forest and conservation workers. Their work involves planting and "
+        "harvesting, operating machinery, tending animals, setting nets and traps, "
+        "and monitoring the health of land, crops, and timber stands. Most roles "
+        "require a high school diploma or less and provide extensive hands-on "
+        "training, though some operations require specialized certifications. These "
+        "workers produce the food, fiber, and timber that supply the rest of the "
+        "economy."
+    ),
+    "47": (
+        "Construction and extraction occupations are the people who build, repair, and "
+        "demolish structures and who remove natural resources from the earth. The "
+        "group includes carpenters, electricians, plumbers, masons, roofers, "
+        "construction laborers, and mining and oil-and-gas extraction workers. Typical "
+        "duties involve reading plans, measuring and cutting materials, installing "
+        "components, operating heavy equipment, and following safety procedures on "
+        "active sites. Most trades require a high school diploma plus an apprenticeship "
+        "or on-the-job training, and many require a license. These workers erect and "
+        "maintain the buildings, infrastructure, and facilities that society depends "
+        "on."
+    ),
+    "49": (
+        "Installation, maintenance, and repair occupations are the people who install "
+        "equipment, keep it working, and fix it when it breaks. The group includes "
+        "automotive mechanics, HVAC technicians, industrial machinery mechanics, "
+        "electronics installers, and general maintenance and repair workers. Their "
+        "work involves diagnosing faults, replacing parts, calibrating systems, "
+        "performing scheduled servicing, and testing equipment to confirm it runs "
+        "correctly. Most roles require a high school diploma plus technical training, "
+        "an apprenticeship, or certification. These workers keep vehicles, machines, "
+        "and systems reliable across every industry."
+    ),
+    "51": (
+        "Production occupations are the people who operate machines and assemble goods "
+        "in factories, plants, and workshops. The group includes assemblers, "
+        "fabricators, machinists, inspectors, printers, and metal and plastic worker "
+        "roles. Typical duties involve setting up and running equipment, measuring and "
+        "shaping parts, assembling components, checking products for defects, and "
+        "recording production data. Most roles require a high school diploma and "
+        "provide moderate on-the-job training, while some skilled positions call for "
+        "vocational instruction. These workers manufacture the physical products that "
+        "reach consumers and businesses."
+    ),
+    "53": (
+        "Transportation and material moving occupations are the people who move people "
+        "and goods from place to place and handle them within warehouses and ports. The "
+        "group includes drivers of trucks, buses, and taxis, air and rail workers, "
+        "water transportation crews, and forklift and conveyor operators. Their work "
+        "involves operating vehicles and equipment, planning routes, loading and "
+        "unloading cargo, following schedules, and complying with safety regulations. "
+        "Most roles require a high school diploma, a commercial driver's license or "
+        "similar certification, and on-the-job training. These workers form the "
+        "logistics backbone that keeps supplies and products moving."
+    ),
+    "55": (
+        "Military occupations are the people who serve in the armed forces to defend a "
+        "nation and support its security interests. The group spans enlisted and "
+        "officer roles across combat, technical, administrative, and support "
+        "specialties, including aircraft operation, engineering, medicine, "
+        "communications, and logistics. Typical duties involve maintaining equipment "
+        "and readiness, following orders and protocols, training for missions, and "
+        "carrying out operations on land, at sea, in the air, or in cyberspace. Entry "
+        "requires meeting physical, aptitude, and age standards and completing "
+        "basic training, with officers additionally commissioned through an academy or "
+        "officer program. These personnel provide for national defense and respond to "
+        "emergencies at home and abroad."
+    ),
+}
+
+
 # Characters that would break markdown (table cells, links, emphasis).
 UNSAFE = set("|[]`*_<>")
 
@@ -204,6 +483,64 @@ def check_safe(text: str, where: str) -> None:
     bad = sorted(set(text) & UNSAFE)
     if bad:
         raise SystemExit(f"Unsafe characters {bad!r} in {where}: {text!r}")
+
+
+def lower_first(s: str) -> str:
+    """Lowercase only the first character (keep acronyms/names intact after)."""
+    return s[:1].lower() + s[1:] if s else s
+
+
+def _sentences(text: str) -> int:
+    """Rough count of sentences in a paragraph."""
+    t = text.strip()
+    if not t:
+        return 0
+    return max(1, len(re.findall(r"[.!?](?:\s|$)", t)))
+
+
+# Closing fallback sentences for sparse O*NET records, cycled as needed so every
+# description reaches at least five sentences without repeating verbatim filler.
+_FALLBACK_TAILS = [
+    "The role centers on the practical work that defines this corner of {group}.",
+    "Its day-to-day demands mirror the broader responsibilities of {group}.",
+    "Like others in {group}, it turns specialized skill into concrete outcomes.",
+]
+
+
+def compose_profession_description(
+    code, title, gcode, group_full, zone, zone_note, onet
+) -> str:
+    """Compose a >=5-sentence dictionary description for one profession."""
+    summary = (onet or {}).get("summary", "").strip()
+    tasks = [t.strip().rstrip(".") for t in (onet or {}).get("tasks", []) if t.strip()]
+    group_name = group_full.split(" ", 1)[-1] if " " in group_full else group_full
+
+    parts = []
+    # Definition: the authoritative O*NET summary (often two sentences).
+    if summary:
+        parts.append(summary)
+    else:
+        parts.append(
+            f"{title} is an occupation classified within {group_name} in the "
+            "O*NET-SOC register."
+        )
+    # Group membership.
+    parts.append(f"It belongs to the {group_name} major group (code {gcode}).")
+    # Real task statements rendered as flowing "They ..." sentences.
+    for t in tasks[:3]:
+        parts.append(f"They {lower_first(t)}.")
+    # Job-zone context.
+    parts.append(
+        f"Most roles in this occupation sit at job zone {zone} ({zone_note})."
+    )
+
+    # Pad to at least five sentences with tailored fallbacks if O*NET data is thin.
+    i = 0
+    while _sentences(" ".join(parts)) < 5:
+        parts.append(_FALLBACK_TAILS[i % len(_FALLBACK_TAILS)].format(group=group_name))
+        i += 1
+
+    return " ".join(parts)
 
 
 def group_section(gcode: str) -> str:
@@ -246,6 +583,10 @@ def main() -> None:
     with CSV_PATH.open(newline="", encoding="utf-8") as fh:
         rows = list(csv.DictReader(fh))
 
+    # Cached O*NET summaries + task statements (see src/fetch-onet.py).
+    onet_path = ROOT / "src" / "docs" / "onet-tasks.json"
+    onet = json.loads(onet_path.read_text(encoding="utf-8")) if onet_path.exists() else {}
+
     groups: OrderedDict[str, dict] = OrderedDict()
     for row in rows:
         code, _, name = row["major_group"].partition(" ")
@@ -279,9 +620,17 @@ def main() -> None:
         check_safe(title, f"profession title ({code})")
         check_safe(row["major_group"], f"major group ({code})")
 
+        desc = compose_profession_description(
+            code, title, gcode, row["major_group"], zone, zone_note, onet.get(code)
+        )
+
         page = f"""---
 title: {yaml_str(title)}
 ---
+
+## Description
+
+{desc}
 
 A profession in the U.S. Department of Labor's O\\*NET-SOC register — one of
 **{total_str}** occupations listed on this site.
@@ -325,10 +674,19 @@ A profession in the U.S. Department of Labor's O\\*NET-SOC register — one of
                 tech_lines.append("")
         tech_block = "\n".join(tech_lines)
 
+        group_desc = GROUP_DESCRIPTIONS.get(
+            gcode,
+            f"{display_name} is a major group of the U.S. O*NET-SOC register.",
+        )
+
         page = f"""---
 title: {yaml_str(display_name)}
 group_code: {yaml_str(gcode)}
 ---
+
+## Description
+
+{group_desc}
 
 Major group `{gcode}` of the U.S. O\\*NET-SOC register, containing
 **{len(group['members'])}** of the {total_str} professions listed on this site.
