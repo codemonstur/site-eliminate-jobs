@@ -203,3 +203,25 @@ tbody td.group a:hover { color: #4e79a7; text-decoration: underline; }
   .page-size-label { justify-content: flex-end; }
   main { padding: 1.25rem 0.75rem 2rem; }
 }
+
+/* Keynes quote */
+.keynes-quote {
+  margin: 0 0 1.75rem;
+  padding: 1rem 1.25rem;
+  border-left: 4px solid #4e79a7;
+  background: #f8f9fa;
+  border-radius: 0 6px 6px 0;
+  color: #343a40;
+  font-style: italic;
+  line-height: 1.55;
+}
+.keynes-quote p { margin: 0 0 0.75rem; }
+.keynes-quote p:last-of-type { margin-bottom: 0.5rem; }
+.keynes-quote footer {
+  font-style: normal;
+  font-size: 0.85rem;
+  color: #6c757d;
+  margin-top: 0.5rem;
+}
+.keynes-quote footer a { color: #4e79a7; }
+.keynes-quote cite { font-style: italic; }
