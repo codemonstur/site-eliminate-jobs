@@ -8,7 +8,8 @@ build: ## Render the arguments to wwwroot with pandoc
 	@rm -rf wwwroot
 	@mkdir -p wwwroot/arguments
 	@-cp -r static/* wwwroot/ 2> /dev/null || true
-	@-for f in arguments/*.md; do \
-		pandoc "$$f" -o "wwwroot/arguments/$$(basename "$${f%.md}.html")" --template=templates/argument.html; \
+	@for f in arguments/*.md; do \
+		[ -e "$$f" ] || continue; \
+		pandoc "$$f" -o "wwwroot/arguments/$$(basename "$${f%.md}.html")" --template=templates/argument.html || exit 1; \
 	done
 	@-cp -r arguments/*.html wwwroot/arguments/ 2> /dev/null || true

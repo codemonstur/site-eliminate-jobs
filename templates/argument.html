@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>$title$ — U.S. O*NET-SOC Occupations</title>
+  <meta name="description" content="$title$ — one of the professions and major groups from the U.S. Department of Labor O*NET-SOC database.">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+  <main class="doc">
+    <p class="crumbs"><a href="../index.html">&larr; All professions</a></p>
+    <h1>$title$</h1>
+    $body$
+    <footer>
+      <p>
+        Data: <a href="https://www.onetonline.org/find/all" target="_blank" rel="noopener">O*NET OnLine</a>,
+        sponsored by the U.S. Department of Labor, Employment and Training Administration.
+      </p>
+    </footer>
+  </main>
+
+$if(group_code)$
+  <script src="../professions.js"></script>
+  <script src="../group.js"></script>
+$endif$
+</body>
+</html>

@@ -2,7 +2,7 @@
 (function () {
   'use strict';
 
-  var PAGE_SIZES = [25, 50, 100, 250];
+  var PAGE_SIZES = [10, 25, 50, 100, 250];
 
   var searchEl = document.getElementById('search');
   var sizeEl = document.getElementById('page-size');
@@ -12,7 +12,7 @@
 
   var query = '';
   var page = 1;
-  var pageSize = 25;
+  var pageSize = 10;
   var filtered = PROFESSIONS;
 
   // Restore state from the URL so filtered pages are linkable.
@@ -47,6 +47,16 @@
     return td;
   }
 
+  function makeLinkCell(href, text, className) {
+    var td = document.createElement('td');
+    var a = document.createElement('a');
+    a.href = href;
+    a.textContent = text;
+    td.appendChild(a);
+    if (className) td.className = className;
+    return td;
+  }
+
   function renderRows(slice) {
     var frag = document.createDocumentFragment();
     if (!slice.length) {
@@ -60,9 +70,9 @@
     }
     slice.forEach(function (p) {
       var tr = document.createElement('tr');
-      tr.appendChild(makeCell(p.title, 'title'));
+      tr.appendChild(makeLinkCell('arguments/' + p.code + '.html', p.title, 'title'));
       tr.appendChild(makeCell(p.code, 'code'));
-      tr.appendChild(makeCell(p.group, 'group'));
+      tr.appendChild(makeLinkCell('arguments/' + p.group.split(' ')[0] + '.html', p.group, 'group'));
       var zone = p.jobZone && p.jobZone !== 'n/a' ? p.jobZone : 'n/a';
       tr.appendChild(makeCell(zone, zone === 'n/a' ? 'num na' : 'num'));
       frag.appendChild(tr);
@@ -141,7 +151,7 @@
     var p = new URLSearchParams();
     if (query.trim()) p.set('q', query.trim());
     if (page !== 1) p.set('page', String(page));
-    if (pageSize !== 25) p.set('size', String(pageSize));
+    if (pageSize !== 10) p.set('size', String(pageSize));
     var qs = p.toString();
     // history API can throw on file:// (origin null) — state sync is optional.
     try {
