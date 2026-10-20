@@ -18,7 +18,11 @@
   </nav>
 
   <main class="doc">
+$if(group_code)$
+    <p class="crumbs"><a href="../groups.html">&larr; All major groups</a></p>
+$else$
     <p class="crumbs"><a href="../professions.html">&larr; All professions</a></p>
+$endif$
     <h1>$title$</h1>
     $body$
     <footer>
