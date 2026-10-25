@@ -4,16 +4,16 @@ Static site listing **every profession tracked by the U.S. Department of Labor**
 (O*NET-SOC database): 1,016 occupations, with a live search box and pagination
 so the page stays small. Every profession and every one of the 23 major groups
 links to its own detail page, compiled from markdown — major group pages embed
-the same search and pagination as the index, driven client-side by `group.js`.
+the same search and pagination as the index, driven client-side by `groups.js`.
 
 ## Structure
 
 | Path                          | What it is                                              |
 |-------------------------------|---------------------------------------------------------|
-| `src/static/`                 | Site source (`index.html`, `style.css`, `app.js`, `group.js`, `professions.js`) |
+| `src/static/`                 | Site source (`index.html`, `style.css`, `app.js`, `groups.js`, `professions.js`) |
 | `src/arguments/`              | One markdown page per profession and per major group (1,039 files, generated) |
 | `src/templates/argument.html`  | Pandoc template used to render `src/arguments/*.md`    |
-| `src/generate-pages.py`       | Regenerates `arguments/*.md` from the CSV               |
+| `src/generate-pages.py`       | Regenerates `src/arguments/*.md` from the CSV           |
 | `src/docs/us-occupations-onet-soc.csv` | Same occupation list as CSV (source of truth)       |
 | `src/docs/government-occupational-registries.md` | Overview of government profession registers worldwide |
 | `docs/`                       | Build output — the deployable site (committed for Pages)                      |
@@ -38,7 +38,7 @@ make build                      # recompile everything into docs/
 ## Hosting on GitHub Pages
 
 1. Push the repository to GitHub.
-2. **Settings → Pages → Source: GitHub Actions**.
+2. **Settings → Pages → Source: Deploy from a branch** (`main`, `/docs`).
 3. Push to `main` — GitHub Pages serves `docs/` from the branch
 
 The site is fully static: relative links only, no server-side code, no
