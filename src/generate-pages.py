@@ -624,6 +624,32 @@ def main() -> None:
             code, title, gcode, row["major_group"], zone, zone_note, onet.get(code)
         )
 
+        info = onet.get(code, {}) or {}
+        employment = info.get("employment")
+        emp_year = info.get("employment_year") or "2025"
+        growth = (info.get("projected_growth") or "").strip()
+        period = info.get("projection_period") or "2025-2035"
+        openings = info.get("projected_openings")
+
+        TOTAL_EMPLOYMENT = 170300000
+        if employment is not None:
+            share = employment / TOTAL_EMPLOYMENT * 100
+            openings_str = f"{openings:,}" if openings is not None else "not available"
+            prevalence_block = (
+                "## Prevalence\n\n"
+                "| Field | Value |\n"
+                "|---|---|\n"
+                f"| Employment ({emp_year}) | {employment:,} workers |\n"
+                f"| Share of U.S. workforce | {share:.2f}% |\n"
+                f"| Projected growth ({period}) | {growth} |\n"
+                f"| Projected job openings ({period}) | {openings_str} |\n\n"
+            )
+        else:
+            prevalence_block = (
+                "## Prevalence\n\n"
+                "Employment and prevalence data are not available for this occupation.\n\n"
+            )
+
         page = f"""---
 title: {yaml_str(title)}
 ---
@@ -642,7 +668,7 @@ A profession in the U.S. Department of Labor's O\\*NET-SOC register — one of
 | Job zone | {zone} — {zone_note} |
 | O\\*NET dataset | {data} |
 
-## In the register
+{prevalence_block}## In the register
 
 - [Full profile on O\\*NET OnLine](https://www.onetonline.org/link/summary/{code})
 - [All professions in {row['major_group']}]({group_link})
@@ -679,6 +705,27 @@ A profession in the U.S. Department of Labor's O\\*NET-SOC register — one of
             f"{display_name} is a major group of the U.S. O*NET-SOC register.",
         )
 
+        seen_prefixes = set()
+        group_employment = 0
+        for r in group["members"]:
+            prefix = r["onet_soc_code"][:7]
+            if prefix in seen_prefixes:
+                continue
+            seen_prefixes.add(prefix)
+            group_employment += (onet.get(r["onet_soc_code"], {}) or {}).get("employment") or 0
+        TOTAL_EMPLOYMENT = 170300000
+        group_share = (group_employment / TOTAL_EMPLOYMENT * 100) if group_employment else 0.0
+        if group_employment:
+            group_prevalence = (
+                f"## Workforce prevalence\n\n"
+                f"Major group `{gcode}` accounts for **{group_employment:,}** workers, "
+                f"or **{group_share:.2f}%** of the U.S. workforce (2025). "
+                f"Employment and projected growth vary by occupation; see each profession's page "
+                f"for its own prevalence and projected change.\n\n"
+            )
+        else:
+            group_prevalence = ""
+
         page = f"""---
 title: {yaml_str(display_name)}
 group_code: {yaml_str(gcode)}
@@ -691,7 +738,7 @@ group_code: {yaml_str(gcode)}
 Major group `{gcode}` of the U.S. O\\*NET-SOC register, containing
 **{len(group['members'])}** of the {total_str} professions listed on this site.
 
-## Ways these jobs could be eliminated
+{group_prevalence}## Ways these jobs could be eliminated
 
 {tech_block}
 
